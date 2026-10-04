@@ -1,0 +1,2 @@
+interface PageIntroProps { eyebrow: string; title: string; description: string }
+export default function PageIntro({ eyebrow, title, description }: PageIntroProps) { return <section className="page-intro"><div className="container py-5"><div className="row py-lg-5"><div className="col-lg-9"><span className="eyebrow">{eyebrow}</span><h1 className="display-title mt-3 mb-4">{title}</h1><p className="page-intro__text mb-0">{description}</p></div></div></div></section> }

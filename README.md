@@ -1,6 +1,6 @@
 # Date and Time — frontend
 
-Frontend MVP сайта творческой команды **Date and Time**, которая создаёт праздники, театрализованные программы и другие проекты. Проект создан на React, TypeScript и Vite, для сетки и компонентов используется Bootstrap 5.
+MVP сайта творческой команды **Date and Time**, которая создаёт праздники, театрализованные программы и другие проекты. Frontend создан на React, TypeScript и Vite; Backend — на ASP.NET Core Web API и EF Core с MySQL.
 
 ## Что уже есть
 
@@ -25,7 +25,7 @@ npm run dev
 В `.env` укажите адрес ASP.NET Core API и отключите демо-режим:
 
 ```env
-VITE_API_URL=https://localhost:7001
+VITE_API_URL=http://localhost:5080
 VITE_USE_MOCKS=false
 ```
 
@@ -71,4 +71,40 @@ npm run preview
 npm run lint
 ```
 
-Административную панель логично добавлять после согласования авторизации, ролей и CRUD endpoint с Backend-командой.
+## Backend
+
+API находится в `backend/DateAndTime.Api` и рассчитан на .NET 8 и MySQL 8.4. Реализованы:
+
+- `GET /api/services` — активные услуги из MySQL;
+- `POST /api/applications` — создание заявки с валидацией;
+- миграция со схемой и начальными услугами;
+- CORS для локального Frontend;
+- ограничение отправки заявок до 10 запросов в минуту на IP;
+- Swagger в Development и health-check `GET /health`.
+
+Запуск API и MySQL через Docker:
+
+```bash
+docker compose up --build
+```
+
+API будет доступен на `http://localhost:5080`, Swagger — на `http://localhost:5080/swagger`, MySQL — на `localhost:3306`.
+
+Для запуска без Docker нужны .NET 8 SDK и локальный MySQL 8.4:
+
+```bash
+dotnet tool restore
+dotnet ef database update --project backend/DateAndTime.Api
+dotnet run --project backend/DateAndTime.Api
+```
+
+Настройки подключения для разработки находятся в `backend/DateAndTime.Api/appsettings.json`. Для общего или production-сервера строку подключения следует передавать через переменную `ConnectionStrings__MySql` или хранилище секретов.
+
+Проверки Backend:
+
+```bash
+dotnet build DateAndTime.sln --configuration Release
+dotnet test DateAndTime.sln --configuration Release
+```
+
+Административную панель, JWT и защищённые CRUD endpoint следует добавлять после согласования ролей и сценария создания первого администратора.

@@ -1,4 +1,4 @@
-const API_URL = (import.meta.env.VITE_API_URL ?? 'https://localhost:7001').replace(/\/$/, '')
+const API_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:5080').replace(/\/$/, '')
 export const useMocks = import.meta.env.VITE_USE_MOCKS !== 'false'
 
 export class ApiError extends Error {

@@ -7,3 +7,10 @@ dist
 .idea
 .vscode/*
 !.vscode/extensions.json
+
+# .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+TestResults/

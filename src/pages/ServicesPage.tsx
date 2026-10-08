@@ -15,7 +15,7 @@ export default function ServicesPage() {
   }, [])
   useEffect(() => { void loadServices() }, [loadServices])
 
-  return <><PageIntro eyebrow="Форматы и возможности" title="События разного масштаба — с одинаковым вниманием" description="Выберите готовое направление или расскажите о своей идее. Финальная смета зависит от формата, площадки, числа гостей и состава команды." /><section className="pb-section"><div className="container">
+  return <><PageIntro eyebrow="Форматы и возможности" title="Праздники, спектакли и творческие проекты" description="Выберите готовое направление или расскажите о своей идее. Финальная смета зависит от сценария, площадки, числа участников и состава команды." /><section className="pb-section"><div className="container">
     {useMocks && <div className="demo-note mb-4"><span>Демо</span> Сейчас показаны локальные данные. Подключение API описано в README.</div>}
     {isLoading && <div className="row g-4" aria-label="Загрузка услуг" aria-busy="true">{[1,2,3].map((item) => <div className="col-lg-4" key={item}><div className="service-skeleton" /></div>)}</div>}
     {error && <div className="error-state text-center"><span className="error-state__icon" aria-hidden="true">!</span><h2>Услуги пока не загрузились</h2><p>{error}</p><button className="btn btn-dark rounded-pill px-4" type="button" onClick={() => void loadServices()}>Попробовать ещё раз</button></div>}

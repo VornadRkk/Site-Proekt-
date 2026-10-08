@@ -1,6 +1,6 @@
 # Date and Time — frontend
 
-Frontend MVP сайта event-агентства **Date and Time**. Проект создан на React, TypeScript и Vite, для сетки и компонентов используется Bootstrap 5.
+Frontend MVP сайта творческой команды **Date and Time**, которая создаёт праздники, театрализованные программы и другие проекты. Проект создан на React, TypeScript и Vite, для сетки и компонентов используется Bootstrap 5.
 
 ## Что уже есть
 
@@ -34,17 +34,17 @@ Frontend ожидает:
 - `GET /api/services` — массив объектов `{ id, name, shortDescription, priceFrom, category? }` или `{ items: [...] }`;
 - `POST /api/applications` — создание заявки с полями `clientName`, `phone`, `email`, `eventType`, `eventDate`, `guestCount`, `comment`.
 
-Категории: `wedding`, `birthday`, `corporate`, `other`. Успешным считается ответ со статусом `2xx`. CORS на Backend должен разрешать адрес Vite, обычно `http://localhost:5173`.
+Категории: `celebration`, `theatre`, `birthday`, `wedding`, `corporate`, `other`. Успешным считается ответ со статусом `2xx`. CORS на Backend должен разрешать адрес Vite, обычно `http://localhost:5173`.
 
 Пример услуги:
 
 ```json
 {
   "id": 1,
-  "name": "Свадьба под ключ",
-  "shortDescription": "Организация свадьбы от идеи до финального тайминга.",
-  "priceFrom": 180000,
-  "category": "wedding"
+  "name": "Театрализованная программа",
+  "shortDescription": "Авторский сценарий и живое представление для вашей площадки.",
+  "priceFrom": 60000,
+  "category": "theatre"
 }
 ```
 
@@ -55,10 +55,10 @@ Frontend ожидает:
   "clientName": "Анна",
   "phone": "+7 999 123-45-67",
   "email": "anna@example.com",
-  "eventType": "wedding",
+  "eventType": "theatre",
   "eventDate": "2026-12-20",
   "guestCount": 50,
-  "comment": "Хотим камерную свадьбу за городом"
+  "comment": "Хотим интерактивную постановку для семейного праздника"
 }
 ```
 

@@ -11,7 +11,7 @@ export default function Header() {
     <button className="navbar-toggler" type="button" aria-controls="mainNavigation" aria-expanded={isMenuOpen} aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'} onClick={() => setIsMenuOpen((current) => !current)}><span className="navbar-toggler-icon" /></button>
     <div className={`collapse navbar-collapse${isMenuOpen ? ' show' : ''}`} id="mainNavigation"><ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
       {navItems.map((item) => <li className="nav-item" key={item.to}><NavLink className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} to={item.to} end={item.end} onClick={() => setIsMenuOpen(false)}>{item.label}</NavLink></li>)}
-      <li className="nav-item ms-lg-3"><NavLink className="btn btn-dark rounded-pill px-4" to="/request" onClick={() => setIsMenuOpen(false)}>Обсудить событие</NavLink></li>
+      <li className="nav-item ms-lg-3"><NavLink className="btn btn-dark rounded-pill px-4" to="/request" onClick={() => setIsMenuOpen(false)}>Обсудить проект</NavLink></li>
     </ul></div>
   </div></nav></header>
 }

@@ -1,0 +1,35 @@
+[Unit]
+Description=Date and Time API
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=dateandtime
+Group=dateandtime
+WorkingDirectory=/var/www/dateandtime/current/backend
+ExecStart=/var/www/dateandtime/current/backend/DateAndTime.Api
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5080
+Environment=DOTNET_NOLOGO=true
+EnvironmentFile=/etc/dateandtime/api.env
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGINT
+SyslogIdentifier=dateandtime-api
+StateDirectory=dateandtime
+StateDirectoryMode=0750
+Environment=HOME=/var/lib/dateandtime
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/dateandtime
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

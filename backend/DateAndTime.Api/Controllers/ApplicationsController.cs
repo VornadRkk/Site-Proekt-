@@ -3,6 +3,8 @@ using DateAndTime.Api.Data;
 using DateAndTime.Api.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace DateAndTime.Api.Controllers;
 
@@ -48,5 +50,29 @@ public sealed class ApplicationsController(AppDbContext dbContext) : ControllerB
             application.CreatedAtUtc);
 
         return StatusCode(StatusCodes.Status201Created, response);
+    }
+
+    [HttpGet, Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
+        Ok(await dbContext.Applications.AsNoTracking().OrderByDescending(x => x.CreatedAtUtc).ToListAsync(cancellationToken));
+
+    [HttpPatch("{id:guid}/status"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateStatus(Guid id, UpdateApplicationStatusRequest request, CancellationToken cancellationToken)
+    {
+        var item = await dbContext.Applications.FindAsync([id], cancellationToken);
+        if (item is null) return NotFound();
+        item.Status = request.Status;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var item = await dbContext.Applications.FindAsync([id], cancellationToken);
+        if (item is null) return NotFound();
+        dbContext.Applications.Remove(item);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return NoContent();
     }
 }

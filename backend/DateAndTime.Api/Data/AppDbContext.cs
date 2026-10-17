@@ -7,6 +7,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 {
     public DbSet<Service> Services => Set<Service>();
     public DbSet<ApplicationRequest> Applications => Set<ApplicationRequest>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<PortfolioItem> PortfolioItems => Set<PortfolioItem>();
+    public DbSet<EventType> EventTypes => Set<EventType>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

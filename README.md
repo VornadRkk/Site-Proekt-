@@ -1,5 +1,7 @@
 # Date and Time — frontend
 
+Sprint requirements, acceptance criteria, data dictionary and API contracts are documented in [docs/requirements-and-acceptance.md](docs/requirements-and-acceptance.md), [docs/data-dictionary.md](docs/data-dictionary.md) and [docs/api-contracts.md](docs/api-contracts.md).
+
 MVP сайта творческой команды **Date and Time**, которая создаёт праздники, театрализованные программы и другие проекты. Frontend создан на React, TypeScript и Vite; Backend — на ASP.NET Core Web API и EF Core с MySQL.
 
 ## Что уже есть

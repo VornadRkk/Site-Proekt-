@@ -1,0 +1,6 @@
+import { Link } from 'react-router-dom'
+import PageIntro from '../components/PageIntro'
+
+export default function ContactsPage() {
+  return <><PageIntro eyebrow="Контакты" title="Давайте обсудим вашу идею" description="Свяжитесь с командой Date and Time или оставьте заявку — мы уточним детали и предложим формат." /><section className="pb-section"><div className="container"><div className="row g-4"><div className="col-md-6"><article className="direction-card tone-rose"><span>ТЕЛЕФОН</span><h2><a href="tel:+79990000000">+7 999 000-00-00</a></h2><p>Позвоните, чтобы обсудить дату и формат мероприятия.</p></article></div><div className="col-md-6"><article className="direction-card tone-sage"><span>ЭЛЕКТРОННАЯ ПОЧТА</span><h2><a href="mailto:hello@dateandtime.ru">hello@dateandtime.ru</a></h2><p>Можно написать о площадке, количестве гостей и пожеланиях.</p></article></div><div className="col-12"><article className="direction-card tone-blue"><span>МЫ НАХОДИМСЯ</span><h2>Самара</h2><p>Работаем на площадках города и области; место проведения согласуем индивидуально.</p><Link className="btn btn-dark rounded-pill align-self-start mt-3" to="/request">Оставить заявку</Link></article></div></div></div></section></>
+}

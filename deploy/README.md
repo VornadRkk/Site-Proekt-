@@ -16,6 +16,8 @@ Use the server's actual numeric version in `Database__ServerVersion` (for exampl
 
 Create `/etc/dateandtime/api.env` from [api.env.example](api.env.example), replacing the connection string and MySQL version. Keep it root-owned with permissions `600`. Passwords containing connection-string or EnvironmentFile quoting characters must be escaped according to their respective formats.
 
+Also set `Jwt__Key` to a cryptographically random secret of at least 32 characters, and set `Admin__Email` / `Admin__Password` to the initial administrator credentials. These values are read only when the users table is empty; changing the environment password later does not reset the stored password hash. Do not use the development-only credentials from `appsettings.Development.json` on a shared server.
+
 Generate an Ed25519 key dedicated to Actions. Keep the private key outside the repository, and copy only its public key to the VPS. Upload the `deploy/` directory, then run as root:
 
 ```bash

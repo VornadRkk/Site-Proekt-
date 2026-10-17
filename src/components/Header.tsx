@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 
-const navItems = [{ to: '/', label: 'Главная', end: true }, { to: '/services', label: 'Услуги' }, { to: '/portfolio', label: 'Портфолио' }]
+const navItems = [{ to: '/', label: 'Главная', end: true }, { to: '/services', label: 'Услуги' }, { to: '/portfolio', label: 'Портфолио' }, { to: '/pricing', label: 'Стоимость' }, { to: '/contacts', label: 'Контакты' }]
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)

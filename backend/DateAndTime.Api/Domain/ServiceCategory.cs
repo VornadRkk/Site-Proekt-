@@ -4,6 +4,7 @@ public enum ServiceCategory
 {
     Celebration,
     Theatre,
+    Festival,
     Birthday,
     Wedding,
     Corporate,

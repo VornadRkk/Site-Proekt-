@@ -10,6 +10,7 @@ public sealed class ApplicationRequest
     public DateOnly EventDate { get; set; }
     public int GuestCount { get; set; }
     public string? Comment { get; set; }
+    public Guid? UserId { get; set; }
     public ApplicationStatus Status { get; set; } = ApplicationStatus.New;
     public DateTime CreatedAtUtc { get; set; }
 }

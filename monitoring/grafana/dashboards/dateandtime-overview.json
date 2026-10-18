@@ -1,0 +1,15 @@
+{
+  "title": "Date and Time — Overview",
+  "uid": "dateandtime-overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    { "id": 1, "type": "stat", "title": "API доступен", "gridPos": { "x": 0, "y": 0, "w": 6, "h": 5 }, "targets": [{ "expr": "up{job=\"dateandtime-api\"}", "legendFormat": "API" }] },
+    { "id": 2, "type": "stat", "title": "MySQL доступен", "gridPos": { "x": 6, "y": 0, "w": 6, "h": 5 }, "targets": [{ "expr": "mysql_up", "legendFormat": "MySQL" }] },
+    { "id": 3, "type": "timeseries", "title": "Запросы в секунду", "gridPos": { "x": 0, "y": 5, "w": 12, "h": 8 }, "targets": [{ "expr": "sum(rate(dateandtime_http_requests_total[5m]))", "legendFormat": "RPS" }] },
+    { "id": 4, "type": "timeseries", "title": "Ошибки 5xx", "gridPos": { "x": 12, "y": 5, "w": 12, "h": 8 }, "targets": [{ "expr": "sum(rate(dateandtime_http_requests_total{status=~\"5..\"}[5m]))", "legendFormat": "5xx/s" }] },
+    { "id": 5, "type": "timeseries", "title": "Среднее время ответа", "gridPos": { "x": 0, "y": 13, "w": 24, "h": 8 }, "targets": [{ "expr": "sum(rate(dateandtime_http_request_duration_seconds_sum[5m])) / sum(rate(dateandtime_http_request_duration_seconds_count[5m]))", "legendFormat": "секунды" }] }
+  ]
+}

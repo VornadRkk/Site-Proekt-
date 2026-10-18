@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { Service, ServiceCategory } from '../types/service'
 
-const names: Record<ServiceCategory, string> = { celebration: 'Праздники', theatre: 'Театр', birthday: 'Дни рождения', wedding: 'Свадьбы', corporate: 'Корпоративы', other: 'Дополнительно' }
+const names: Record<ServiceCategory, string> = { celebration: 'Праздник', theatre: 'Театр', festival: 'Фестиваль', birthday: 'Частный праздник', wedding: 'Свадьба', corporate: 'Корпоратив', other: 'Дополнительно' }
 const formatter = new Intl.NumberFormat('ru-RU')
 
 export default function ServiceCard({ service, index }: { service: Service; index: number }) {

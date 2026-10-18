@@ -18,5 +18,6 @@ public sealed class ApplicationRequestConfiguration : IEntityTypeConfiguration<A
         builder.Property(application => application.Status).HasConversion<string>().HasMaxLength(32);
         builder.HasIndex(application => application.CreatedAtUtc);
         builder.HasIndex(application => application.Status);
+        builder.HasIndex(application => application.UserId);
     }
 }

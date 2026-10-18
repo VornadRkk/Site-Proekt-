@@ -66,13 +66,83 @@ namespace DateAndTime.Api.Data.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("varchar(32)");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAtUtc");
 
                     b.HasIndex("Status");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("applications", (string)null);
+                });
+
+            modelBuilder.Entity("DateAndTime.Api.Domain.EventType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("event_types", (string)null);
+                });
+
+            modelBuilder.Entity("DateAndTime.Api.Domain.PortfolioItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsPublished", "DisplayOrder");
+
+                    b.ToTable("portfolio_items", (string)null);
                 });
 
             modelBuilder.Entity("DateAndTime.Api.Domain.Service", b =>
@@ -136,12 +206,12 @@ namespace DateAndTime.Api.Data.Migrations
                         new
                         {
                             Id = new Guid("88a41a6d-f625-4a32-a3b5-0727c888e312"),
-                            Category = "Theatre",
+                            Category = "Celebration",
                             DisplayOrder = 3,
                             IsActive = true,
-                            Name = "Интерактивный спектакль",
+                            Name = "Игровые программы",
                             PriceFrom = 45000m,
-                            ShortDescription = "История, в которой зрители становятся участниками происходящего."
+                            ShortDescription = "Живые игровые форматы для детей и взрослых с ведущими, персонажами и общей историей."
                         },
                         new
                         {
@@ -149,9 +219,9 @@ namespace DateAndTime.Api.Data.Migrations
                             Category = "Birthday",
                             DisplayOrder = 4,
                             IsActive = true,
-                            Name = "День рождения",
+                            Name = "Частные праздники",
                             PriceFrom = 75000m,
-                            ShortDescription = "Личный сценарий для семейного праздника или большой вечеринки."
+                            ShortDescription = "Личный сценарий для семейного события, камерного вечера или большой вечеринки."
                         },
                         new
                         {
@@ -172,7 +242,57 @@ namespace DateAndTime.Api.Data.Migrations
                             Name = "Корпоративный праздник",
                             PriceFrom = 100000m,
                             ShortDescription = "Тематическая программа и представление для команды."
+                        },
+                        new
+                        {
+                            Id = new Guid("ab32a0d5-7eb7-4207-9d9b-e3fc5f750dee"),
+                            Category = "Festival",
+                            DisplayOrder = 7,
+                            IsActive = true,
+                            Name = "Фестивальные программы",
+                            PriceFrom = 150000m,
+                            ShortDescription = "Концепция, сценарий и творческое наполнение для городских и тематических фестивалей."
                         });
+                });
+
+            modelBuilder.Entity("DateAndTime.Api.Domain.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("varchar(254)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("users", (string)null);
                 });
 #pragma warning restore 612, 618
         }

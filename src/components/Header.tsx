@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
+import { clientAuthEnabled, getClientSession } from '../api/auth'
 
-const navItems = [{ to: '/', label: 'Главная', end: true }, { to: '/services', label: 'Услуги' }, { to: '/portfolio', label: 'Портфолио' }, { to: '/pricing', label: 'Стоимость' }, { to: '/contacts', label: 'Контакты' }]
+const navItems = [{ to: '/', label: 'Главная', end: true }, { to: '/services', label: 'Услуги' }, { to: '/portfolio', label: 'Портфолио' }, { to: '/contacts', label: 'Контакты' }]
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -32,6 +33,7 @@ export default function Header() {
     <button className="navbar-toggler" ref={menuButtonRef} type="button" aria-controls="mainNavigation" aria-expanded={isMenuOpen} aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'} onClick={() => setIsMenuOpen((current) => !current)}><span className="navbar-toggler-icon" /></button>
     <div className={`collapse navbar-collapse${isMenuOpen ? ' show' : ''}`} id="mainNavigation"><ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
       {navItems.map((item) => <li className="nav-item" key={item.to}><NavLink className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} to={item.to} end={item.end} onClick={() => setIsMenuOpen(false)}>{item.label}</NavLink></li>)}
+      {clientAuthEnabled && <li className="nav-item"><NavLink className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} to={getClientSession() ? '/account' : '/login'} onClick={() => setIsMenuOpen(false)}>{getClientSession() ? 'Кабинет' : 'Войти'}</NavLink></li>}
       <li className="nav-item ms-lg-3"><NavLink className="btn btn-dark rounded-pill px-4" to="/request" onClick={() => setIsMenuOpen(false)}>Обсудить проект</NavLink></li>
     </ul></div>
   </div></nav></header>

@@ -4,8 +4,8 @@ import PageIntro from '../components/PageIntro'
 
 type PortfolioItem = { id: string; type: string; title: string; description: string; imageUrl?: string }
 const examples: PortfolioItem[] = [
-  { id: 'garden', type: 'Театральная программа', title: 'Тихий сад', description: '45 зрителей · загородная площадка' },
-  { id: 'night', type: 'Интерактивный спектакль', title: 'Новая глава', description: '120 зрителей · городская сцена' },
+  { id: 'garden', type: 'Театрализованная программа', title: 'Тихий сад', description: 'Авторская постановка · загородная площадка' },
+  { id: 'night', type: 'Игровая программа', title: 'Новая глава', description: 'Живой игровой формат · городская сцена' },
   { id: 'summer', type: 'Семейный праздник', title: 'Летний полдень', description: '30 гостей · открытая веранда' },
   { id: 'city', type: 'Городской проект', title: 'Город и мы', description: 'Большая аудитория · открытая площадка' },
 ]

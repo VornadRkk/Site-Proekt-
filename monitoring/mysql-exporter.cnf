@@ -1,0 +1,5 @@
+[client]
+user=dateandtime
+password=dateandtime_dev
+host=mysql
+port=3306

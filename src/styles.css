@@ -24,7 +24,7 @@ main { flex: 1; }
 .app-error span { font-size: .75rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .app-error h1 { margin: 1rem 0; font: 600 clamp(2.2rem, 6vw, 4rem)/1.12 var(--font-body); }
 .app-error p { color: var(--muted); overflow-wrap: anywhere; }
-.container { --bs-gutter-x: 2rem; }
+.container { width: min(96%, 1600px); max-width: 1600px; --bs-gutter-x: 2rem; }
 .site-header { background: rgba(248, 245, 239, .92); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px); }
 .site-header .navbar { min-height: 78px; }
 .brand-mark { display: inline-flex; align-items: center; gap: .48rem; font-size: .78rem; font-weight: 800; letter-spacing: .2em; }
@@ -138,6 +138,19 @@ textarea.form-control { min-height: 120px; }
 .success-card h1 { margin: 1rem 0; font: 600 clamp(2.2rem, 5vw, 3.6rem)/1.15 var(--font-body); letter-spacing: -.035em; }
 .success-card h1:focus { outline: none; }
 .success-card p { color: var(--muted); line-height: 1.7; }
+.auth-switch { display: grid; grid-template-columns: 1fr 1fr; padding: .25rem; background: #ebe4da; }
+.auth-switch button { padding: .7rem; color: var(--muted); background: transparent; border: 0; font-weight: 700; }
+.auth-switch button.active { color: var(--ink); background: white; box-shadow: 0 4px 15px rgba(29, 36, 34, .08); }
+.account-page { min-height: 70vh; background: #fbfaf7; }
+.account-card, .account-empty { height: 100%; padding: 2rem; background: white; border: 1px solid var(--line); }
+.account-card h2 { margin: 3rem 0 1rem; font: 600 1.8rem/1.2 var(--font-body); letter-spacing: -.03em; }
+.account-card p, .account-card small { color: var(--muted); }
+.account-empty { max-width: 720px; }
+.account-empty h2 { font: 600 2rem/1.2 var(--font-body); }
+.status-badge { align-self: start; padding: .35rem .65rem; background: #ede8df; font-size: .75rem; font-weight: 700; }
+.status-badge--inProgress { background: #dce5ee; }
+.status-badge--completed { background: #dbe8dc; }
+.status-badge--rejected { background: #eedbd8; }
 
 .not-found { min-height: 65vh; }
 .not-found span { color: #bcaea0; font: 500 clamp(5rem, 15vw, 11rem)/1 var(--font-body); }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace DateAndTime.Api.Controllers;
 
@@ -27,16 +28,23 @@ public sealed class ApplicationsController(AppDbContext dbContext) : ControllerB
             return ValidationProblem(ModelState);
         }
 
+        var authenticatedEmail = HttpContext?.User.Identity?.IsAuthenticated == true
+            ? HttpContext.User.FindFirstValue(ClaimTypes.Email)
+            : null;
+        var authenticatedUserId = Guid.TryParse(HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
+            ? userId
+            : (Guid?)null;
         var application = new ApplicationRequest
         {
             Id = Guid.NewGuid(),
             ClientName = request.ClientName.Trim(),
             Phone = request.Phone.Trim(),
-            Email = request.Email.Trim().ToLowerInvariant(),
+            Email = (authenticatedEmail ?? request.Email).Trim().ToLowerInvariant(),
             EventType = request.EventType!.Value,
             EventDate = request.EventDate!.Value,
-            GuestCount = request.GuestCount,
+            GuestCount = 0,
             Comment = string.IsNullOrWhiteSpace(request.Comment) ? null : request.Comment.Trim(),
+            UserId = authenticatedUserId,
             Status = ApplicationStatus.New,
             CreatedAtUtc = DateTime.UtcNow
         };
@@ -50,6 +58,29 @@ public sealed class ApplicationsController(AppDbContext dbContext) : ControllerB
             application.CreatedAtUtc);
 
         return StatusCode(StatusCodes.Status201Created, response);
+    }
+
+    [HttpGet("mine"), Authorize(Roles = "Client")]
+    public async Task<ActionResult<IReadOnlyList<ApplicationResponse>>> GetMine(CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)) return Unauthorized();
+
+        var applications = await dbContext.Applications
+            .AsNoTracking()
+            .Where(item => item.UserId == userId)
+            .OrderByDescending(item => item.CreatedAtUtc)
+            .Select(item => new ApplicationResponse(
+                item.Id,
+                item.ClientName,
+                item.Phone,
+                item.Email,
+                item.EventType,
+                item.EventDate,
+                item.Comment,
+                item.Status,
+                item.CreatedAtUtc))
+            .ToListAsync(cancellationToken);
+        return Ok(applications);
     }
 
     [HttpGet, Authorize(Roles = "Admin")]

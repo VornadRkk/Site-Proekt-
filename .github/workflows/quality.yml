@@ -1,0 +1,49 @@
+name: Quality checks
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run build
+      - run: dotnet test DateAndTime.sln --configuration Release
+
+  e2e:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Start application
+        run: |
+          docker compose up -d --build mysql api frontend
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:8080/health >/dev/null && exit 0
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - run: npm run test:e2e
+      - if: always()
+        run: docker compose down --volumes
+

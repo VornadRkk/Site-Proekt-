@@ -21,9 +21,6 @@ public sealed class CreateApplicationRequest
     [Required]
     public DateOnly? EventDate { get; init; }
 
-    [Range(1, 5000)]
-    public int GuestCount { get; init; }
-
     [StringLength(2000)]
     public string? Comment { get; init; }
 }

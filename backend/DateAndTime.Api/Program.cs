@@ -5,6 +5,7 @@ using System.Threading.RateLimiting;
 using System.Text;
 using DateAndTime.Api.Data;
 using DateAndTime.Api.Services;
+using DateAndTime.Api.Observability;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -90,7 +91,7 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0,
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst
             }));
-    options.AddPolicy("admin-login", context =>
+    options.AddPolicy("auth", context =>
         RateLimitPartition.GetFixedWindowLimiter(
             context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             _ => new FixedWindowRateLimiterOptions
@@ -102,7 +103,8 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-builder.Services.AddHealthChecks();
+builder.Services.AddSingleton<ApiMetrics>();
+builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("mysql", tags: ["ready"]);
 
 var app = builder.Build();
 
@@ -119,8 +121,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("Frontend");
 app.UseRateLimiter();
+app.UseMiddleware<ApiMetricsMiddleware>();
 app.MapControllers();
 app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
+app.MapGet("/metrics", async (HttpContext context, ApiMetrics metrics) =>
+    await metrics.WriteAsync(context.Response, context.RequestAborted));
 
 if (!app.Environment.IsEnvironment("Testing"))
 {

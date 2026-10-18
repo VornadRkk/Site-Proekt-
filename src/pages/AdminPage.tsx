@@ -1,8 +1,10 @@
 import { FormEvent, useEffect, useState } from 'react'
+import { Navigate } from 'react-router-dom'
+import { getClientSession } from '../api/auth'
 
 type Service = { id: string; name: string; shortDescription: string; priceFrom: number; category: string; isActive: boolean; displayOrder: number }
 type PortfolioItem = { id: string; title: string; type: string; description: string; imageUrl?: string; displayOrder: number; isPublished: boolean }
-type Application = { id: string; clientName: string; phone: string; email: string; eventType: string; eventDate: string; guestCount: number; status: string }
+type Application = { id: string; clientName: string; phone: string; email: string; eventType: string; eventDate: string; status: string }
 const tokenKey = 'dateandtime.admin.token'
 
 async function request<T>(path: string, token: string, init?: RequestInit): Promise<T> {
@@ -36,12 +38,15 @@ export default function AdminPage() {
   }
   useEffect(() => { if (token) void refresh(token) }, [token])
 
+  if (getClientSession()) return <Navigate to="/account" replace />
+
   const login = async (event: FormEvent) => {
     event.preventDefault()
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) })
       if (!response.ok) throw new Error('Неверный email или пароль.')
-      const result = await response.json() as { accessToken: string }
+      const result = await response.json() as { accessToken: string; role: string }
+      if (result.role.toLowerCase() !== 'admin') throw new Error('У этой учётной записи нет прав администратора.')
       localStorage.setItem(tokenKey, result.accessToken); setToken(result.accessToken); setPassword(''); setMessage('')
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Не удалось войти.') }
   }
@@ -76,6 +81,6 @@ export default function AdminPage() {
   return <main className="section-padding"><div className="container"><div className="d-flex justify-content-between align-items-center mb-4"><div><span className="eyebrow">Панель управления</span><h1 className="display-title mt-2">Администрирование</h1></div><button className="btn btn-outline-dark rounded-pill" onClick={() => { localStorage.removeItem(tokenKey); setToken('') }}>Выйти</button></div>{message && <div className="alert alert-warning">{message}</div>}
     <section className="mb-5"><h2>Услуги</h2><form className="row g-2 mb-3" onSubmit={createService}><div className="col-md-3"><input className="form-control" placeholder="Название" required value={serviceName} onChange={(event) => setServiceName(event.target.value)} /></div><div className="col-md-5"><input className="form-control" placeholder="Краткое описание" required value={serviceDescription} onChange={(event) => setServiceDescription(event.target.value)} /></div><div className="col-md-2"><input className="form-control" type="number" min="0" placeholder="Цена от" required value={servicePrice} onChange={(event) => setServicePrice(event.target.value)} /></div><div className="col-md-2"><button className="btn btn-dark w-100">Добавить</button></div></form><ul className="list-group">{services.map((item) => <li className="list-group-item d-flex justify-content-between" key={item.id}><span>{item.name}{!item.isActive && ' (скрыта)'}</span><span className="d-flex gap-2"><button className="btn btn-sm btn-outline-secondary" onClick={() => void editService(item)}>Изменить</button><button className="btn btn-sm btn-outline-danger" onClick={() => void remove(`/api/services/${item.id}`)}>{item.isActive ? 'Скрыть' : 'Удалить'}</button></span></li>)}</ul></section>
     <section className="mb-5"><h2>Портфолио</h2><form className="row g-2 mb-3" onSubmit={createPortfolio}><div className="col-md-3"><input className="form-control" placeholder="Название проекта" required value={portfolioTitle} onChange={(event) => setPortfolioTitle(event.target.value)} /></div><div className="col-md-3"><input className="form-control" placeholder="Тип мероприятия" required value={portfolioType} onChange={(event) => setPortfolioType(event.target.value)} /></div><div className="col-md-4"><input className="form-control" placeholder="Описание" required value={portfolioDescription} onChange={(event) => setPortfolioDescription(event.target.value)} /></div><div className="col-md-2"><button className="btn btn-dark w-100">Добавить</button></div></form><ul className="list-group">{portfolio.map((item) => <li className="list-group-item d-flex justify-content-between" key={item.id}><span>{item.title}{!item.isPublished && ' (снята с публикации)'}</span><span className="d-flex gap-2"><button className="btn btn-sm btn-outline-secondary" onClick={() => void editPortfolio(item)}>Изменить</button><button className="btn btn-sm btn-outline-danger" onClick={() => void remove(`/api/portfolio/${item.id}`)}>Скрыть</button></span></li>)}</ul></section>
-    <section><h2>Заявки</h2><div className="table-responsive"><table className="table"><thead><tr><th>Клиент</th><th>Контакты</th><th>Дата</th><th>Гостей</th><th>Статус</th><th>Действие</th></tr></thead><tbody>{applications.map((item) => <tr key={item.id}><td>{item.clientName}</td><td>{item.phone}<br />{item.email}</td><td>{item.eventDate}</td><td>{item.guestCount}</td><td><select className="form-select" value={item.status} onChange={async (event) => { try { await request(`/api/applications/${item.id}/status`, token, { method: 'PATCH', body: JSON.stringify({ status: event.target.value }) }); await refresh(token) } catch (error) { setMessage(error instanceof Error ? error.message : 'Не удалось изменить статус.') } }}><option value="new">Новая</option><option value="inProgress">В работе</option><option value="completed">Завершена</option><option value="rejected">Отклонена</option></select></td><td><button className="btn btn-sm btn-outline-danger" onClick={() => { if (window.confirm('Удалить эту заявку безвозвратно?')) void remove(`/api/applications/${item.id}`) }}>Удалить</button></td></tr>)}</tbody></table></div></section>
+    <section><h2>Заявки</h2><div className="table-responsive"><table className="table"><thead><tr><th>Клиент</th><th>Контакты</th><th>Дата</th><th>Статус</th><th>Действие</th></tr></thead><tbody>{applications.map((item) => <tr key={item.id}><td>{item.clientName}</td><td>{item.phone}<br />{item.email}</td><td>{item.eventDate}</td><td><select className="form-select" value={item.status} onChange={async (event) => { try { await request(`/api/applications/${item.id}/status`, token, { method: 'PATCH', body: JSON.stringify({ status: event.target.value }) }); await refresh(token) } catch (error) { setMessage(error instanceof Error ? error.message : 'Не удалось изменить статус.') } }}><option value="new">Новая</option><option value="inProgress">В работе</option><option value="completed">Завершена</option><option value="rejected">Отклонена</option></select></td><td><button className="btn btn-sm btn-outline-danger" onClick={() => { if (window.confirm('Удалить эту заявку безвозвратно?')) void remove(`/api/applications/${item.id}`) }}>Удалить</button></td></tr>)}</tbody></table></div></section>
   </div></main>
 }

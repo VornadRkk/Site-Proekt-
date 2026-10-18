@@ -17,11 +17,14 @@ export async function apiRequest<T>(path: string, options?: RequestInit): Promis
     if (options?.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
     const response = await fetch(`${API_URL}${path}`, { ...options, headers, signal: controller.signal })
     if (!response.ok) {
-      const message = response.status === 400
-        ? 'Проверьте заполненные поля: имя, контакты, дату и количество гостей.'
-        : response.status === 429
-          ? 'Слишком много запросов. Подождите минуту и попробуйте снова.'
-          : 'Сервер временно не может обработать запрос. Попробуйте немного позже.'
+      const messages: Record<number, string> = {
+        400: 'Проверьте заполненные поля: имя, контакты, формат и дату.',
+        401: 'Неверный email или пароль либо сессия завершилась.',
+        403: 'Для этого действия недостаточно прав.',
+        409: 'Аккаунт с таким email уже существует.',
+        429: 'Слишком много запросов. Подождите минуту и попробуйте снова.',
+      }
+      const message = messages[response.status] ?? 'Сервер временно не может обработать запрос. Попробуйте немного позже.'
       throw new ApiError(message, response.status)
     }
     if (response.status === 204) return undefined as T

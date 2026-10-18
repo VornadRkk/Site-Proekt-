@@ -19,10 +19,11 @@ public sealed class ServiceConfiguration : IEntityTypeConfiguration<Service>
         builder.HasData(
             Create(new Guid("15373850-0b42-4e3f-87aa-fb2f6477cc31"), "Театрализованная программа", "Авторский сценарий, образы и живое представление для вашей площадки и зрителей.", 60000, ServiceCategory.Theatre, 1),
             Create(new Guid("c9ddb5a8-f5d0-4180-aadf-d9304c782e34"), "Праздник под ключ", "Идея, оформление, артисты и программа, собранные в цельный праздник.", 80000, ServiceCategory.Celebration, 2),
-            Create(new Guid("88a41a6d-f625-4a32-a3b5-0727c888e312"), "Интерактивный спектакль", "История, в которой зрители становятся участниками происходящего.", 45000, ServiceCategory.Theatre, 3),
-            Create(new Guid("752c9775-4c91-4d52-ab09-8515fb41b642"), "День рождения", "Личный сценарий для семейного праздника или большой вечеринки.", 75000, ServiceCategory.Birthday, 4),
+            Create(new Guid("88a41a6d-f625-4a32-a3b5-0727c888e312"), "Игровые программы", "Живые игровые форматы для детей и взрослых с ведущими, персонажами и общей историей.", 45000, ServiceCategory.Celebration, 3),
+            Create(new Guid("752c9775-4c91-4d52-ab09-8515fb41b642"), "Частные праздники", "Личный сценарий для семейного события, камерного вечера или большой вечеринки.", 75000, ServiceCategory.Birthday, 4),
             Create(new Guid("b0ce73b4-a9a1-41f2-a7e3-43c2988696f3"), "Свадебная программа", "Творческие номера и тёплые детали для важного дня.", 120000, ServiceCategory.Wedding, 5),
-            Create(new Guid("56ddf997-591d-419e-9c36-5acfdde51ce1"), "Корпоративный праздник", "Тематическая программа и представление для команды.", 100000, ServiceCategory.Corporate, 6));
+            Create(new Guid("56ddf997-591d-419e-9c36-5acfdde51ce1"), "Корпоративный праздник", "Тематическая программа и представление для команды.", 100000, ServiceCategory.Corporate, 6),
+            Create(new Guid("ab32a0d5-7eb7-4207-9d9b-e3fc5f750dee"), "Фестивальные программы", "Концепция, сценарий и творческое наполнение для городских и тематических фестивалей.", 150000, ServiceCategory.Festival, 7));
     }
 
     private static Service Create(Guid id, string name, string description, decimal price, ServiceCategory category, int order) =>

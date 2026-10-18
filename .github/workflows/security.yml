@@ -1,0 +1,81 @@
+name: Security checks
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  codeql:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [csharp, javascript-typescript]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+
+  dependencies-and-secrets:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: npm ci --no-audit --no-fund
+      - run: npm audit --audit-level=high
+      - run: dotnet restore DateAndTime.sln
+      - run: dotnet list DateAndTime.sln package --vulnerable --include-transitive
+      - uses: gitleaks/gitleaks-action@v2
+
+  container:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f backend/DateAndTime.Api/Dockerfile -t dateandtime-api:scan .
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: dateandtime-api:scan
+          format: table
+          exit-code: '1'
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
+  passive-dast:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start test environment
+        run: |
+          docker compose up -d --build mysql api frontend
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:8080/health >/dev/null && exit 0
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - name: OWASP ZAP baseline
+        run: docker run --rm --network host -v "$PWD:/zap/wrk/:rw" ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://127.0.0.1:8080 -I -r zap-report.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-report
+          path: zap-report.html
+          if-no-files-found: ignore
+      - if: always()
+        run: docker compose down --volumes
+

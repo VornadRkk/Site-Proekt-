@@ -17,7 +17,6 @@ public sealed class ApiFactory : WebApplicationFactory<Program> {
  protected override void ConfigureWebHost(IWebHostBuilder builder) {
   builder.UseEnvironment("Testing");
   builder.UseSetting("Jwt:Key", "integration-tests-only-signing-key-1234567890");
-  builder.UseSetting("Jwt:Key", "integration-tests-only-signing-key-1234567890");
   builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?> { ["Jwt:Key"] = "integration-tests-only-signing-key-1234567890" }));
   builder.ConfigureServices(services=>{services.RemoveAll<DbContextOptions<AppDbContext>>();services.AddDbContext<AppDbContext>(o=>o.UseInMemoryDatabase(database));});
  }

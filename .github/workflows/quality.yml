@@ -24,6 +24,8 @@ jobs:
           printf 'JWT_KEY=%s\nADMIN_PASSWORD=%s\nGRAFANA_PASSWORD=%s\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 24)" "$(openssl rand -hex 24)" > .env
           docker compose up --build -d --wait
           curl --fail --silent --show-error --retry 60 --retry-delay 2 --retry-connrefused --retry-all-errors http://localhost:5080/health
+      - name: Verify Prometheus and Grafana
+        run: node scripts/verify-monitoring.mjs
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - name: k6
@@ -37,7 +39,7 @@ jobs:
         if: failure()
         run: |
           docker compose ps -a
-          docker compose logs --no-color --tail=100 api frontend mysql-exporter
+          docker compose logs --no-color --tail=100 api frontend mysql-exporter prometheus grafana
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -46,6 +48,7 @@ jobs:
             playwright-report
             load-results.txt
             dependency-report.json
+            test-results/monitoring.json
             zap-results
       - if: always()
         run: docker compose down -v

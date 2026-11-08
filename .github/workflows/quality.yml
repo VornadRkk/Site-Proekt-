@@ -23,7 +23,7 @@ jobs:
         run: |
           printf 'JWT_KEY=%s\nADMIN_PASSWORD=%s\nGRAFANA_PASSWORD=%s\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 24)" "$(openssl rand -hex 24)" > .env
           docker compose up --build -d --wait
-          for i in $(seq 1 60); do curl -fsS http://localhost:5080/health && break; sleep 2; done
+          curl --fail --silent --show-error --retry 60 --retry-delay 2 --retry-connrefused --retry-all-errors http://localhost:5080/health
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - name: k6
@@ -33,6 +33,11 @@ jobs:
           mkdir -p zap-results
           chmod 777 zap-results
           docker run --rm --network host -v "$PWD/zap-results:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://localhost:8080 -r report.html -I
+      - name: Container diagnostics
+        if: failure()
+        run: |
+          docker compose ps -a
+          docker compose logs --no-color --tail=100 api frontend mysql-exporter
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -49,14 +54,30 @@ jobs:
     permissions:
       contents: read
       security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: javascript-typescript
+            build-mode: none
+          - language: csharp
+            build-mode: manual
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: actions/setup-dotnet@v4
+        if: matrix.language == 'csharp'
         with:
-          languages: javascript-typescript,csharp
-          build-mode: autobuild
-      - uses: github/codeql-action/autobuild@v3
-      - uses: github/codeql-action/analyze@v3
+          dotnet-version: '8.0.x'
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - name: Build C# for analysis
+        if: matrix.language == 'csharp'
+        run: dotnet build DateAndTime.sln -c Release --no-incremental
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
   secrets:
     runs-on: ubuntu-24.04
     steps:
@@ -74,7 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -f ${{ matrix.dockerfile }} -t dateandtime:scan .
-      - uses: aquasecurity/trivy-action@0.28.0
+      - uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: dateandtime:scan
           exit-code: '1'

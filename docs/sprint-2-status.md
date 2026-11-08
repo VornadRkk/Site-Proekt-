@@ -1,4 +1,4 @@
-﻿# Спринт 2: реализация и проверка
+# Спринт 2: реализация и проверка
 
 Требования взяты из Sprint_2_Date_and_Time.docx. MySQL сохранён; PostgreSQL и Figma исключены согласно документу.
 
@@ -8,7 +8,7 @@
 | US-07 | /account, проверка сессии, GET /api/applications/mine, UserId у новых авторизованных заявок | Изоляция двух аккаунтов проверена API-тестом; анонимные заявки сохранены |
 | US-08 | Проверка сессии перед показом админки, перенаправление Client, серверные Admin policies | Отказы 401/403 проверены API-тестами |
 | QA-01 | Unit и HTTP integration tests через WebApplicationFactory | 19 тестов проходят; HTTP-тесты используют InMemory, не MySQL |
-| QA-02 | tests/e2e/client.spec.ts | Пройдены 4 E2E-теста на настоящем API/MySQL, включая регистрацию, заявки, доступы, согласия и cookies |
+| QA-02 | tests/e2e/client.spec.ts | E2E на настоящем API/MySQL проверяют регистрацию, заявки, доступы, согласия, cookies и навигацию |
 | QA-03 | tests/load/public-api.js: услуги и создание заявки | Пороги p95 < 1000 мс и ошибки < 1% выполнены в CI; отчёт сохраняется как load-results.txt |
 | SRE-01 | Метрики HTTP, MySQL exporter, Prometheus, Grafana dashboard, health-check БД, JSON logs | Проверены оба scrape-target, mysql_up, подключение Grafana и данные всех 8 панелей; production-установка мониторинга отдельно не выполнена |
 | DX-01 | Compose: frontend/API/MySQL/мониторинг; миграция и seed | Compose, миграции, seed и создание заявки проверены на настоящем MySQL в CI; production-деплой успешно выполняется |

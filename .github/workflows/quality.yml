@@ -95,7 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -f ${{ matrix.dockerfile }} -t dateandtime:scan .
-      - uses: aquasecurity/trivy-action@v0.28.0
+      - uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: dateandtime:scan
           exit-code: '1'

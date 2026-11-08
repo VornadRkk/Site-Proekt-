@@ -2,6 +2,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { createApplication } from '../api/applications'
 import { useMocks } from '../api/client'
+import PrivacyConsent from '../components/PrivacyConsent'
 import type { CreateApplicationRequest, EventType } from '../types/application'
 
 const initialForm: CreateApplicationRequest = { clientName: '', phone: '', email: '', eventType: 'celebration', eventDate: '', guestCount: 20, comment: '' }
@@ -70,6 +71,7 @@ export default function RequestPage() {
     <div className="col-12"><label className="form-label" htmlFor="comment">Что для вас важно?</label><textarea className="form-control" id="comment" name="comment" rows={4} value={form.comment} onChange={(e) => updateField('comment', e.target.value)} maxLength={2000} placeholder="Расскажите о пожеланиях, площадке или примерном бюджете" /></div>
     {useMocks && <div className="col-12"><p className="demo-note mb-0">Демо-режим: заявки пока не сохраняются.</p></div>}
     {error && <div className="col-12"><div className="alert alert-danger mb-0" role="alert">{error}</div></div>}
-    <div className="col-12"><button className="btn btn-dark btn-lg rounded-pill w-100" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Отправляем…' : 'Отправить заявку'}</button><p className="form-consent mt-3 mb-0">Нажимая кнопку, вы соглашаетесь на обработку указанных данных для связи по заявке.</p></div>
+    <div className="col-12"><PrivacyConsent /></div>
+    <div className="col-12"><button className="btn btn-dark btn-lg rounded-pill w-100" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Отправляем…' : 'Отправить заявку'}</button></div>
   </div></fieldset></form></div></div></div></section>
 }

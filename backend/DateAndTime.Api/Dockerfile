@@ -6,7 +6,9 @@ COPY . .
 WORKDIR "/src/backend/DateAndTime.Api"
 RUN dotnet publish "DateAndTime.Api.csproj" -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
+RUN apk upgrade --no-cache && apk add --no-cache icu-libs icu-data-full tzdata
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080

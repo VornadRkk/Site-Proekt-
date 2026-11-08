@@ -7,7 +7,7 @@ services:
       MYSQL_PASSWORD: dateandtime_dev
       MYSQL_ROOT_PASSWORD: dateandtime_root_dev
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -24,11 +24,37 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__MySql: Server=mysql;Port=3306;Database=dateandtime;User=dateandtime;Password=dateandtime_dev
       Database__ServerVersion: 8.4.0
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY in .env}
+      Admin__Password: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
     ports:
-      - "5080:8080"
+      - "127.0.0.1:5080:8080"
     depends_on:
       mysql:
         condition: service_healthy
 
+  frontend:
+    build: .
+    ports: ["127.0.0.1:8080:80"]
+    depends_on: [api]
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.16.0
+    command: ["--mysqld.address=mysql:3306", "--mysqld.username=root"]
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: dateandtime_root_dev
+    depends_on:
+      mysql:
+        condition: service_healthy
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    volumes: ["./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
+    ports: ["127.0.0.1:9090:9090"]
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?Set GRAFANA_PASSWORD in .env}
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports: ["127.0.0.1:3000:3000"]
 volumes:
   mysql_data:

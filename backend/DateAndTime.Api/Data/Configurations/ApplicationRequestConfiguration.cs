@@ -10,6 +10,8 @@ public sealed class ApplicationRequestConfiguration : IEntityTypeConfiguration<A
     {
         builder.ToTable("applications");
         builder.HasKey(application => application.Id);
+        builder.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasIndex(x => x.UserId);
         builder.Property(application => application.ClientName).HasMaxLength(100).IsRequired();
         builder.Property(application => application.Phone).HasMaxLength(30).IsRequired();
         builder.Property(application => application.Email).HasMaxLength(254).IsRequired();

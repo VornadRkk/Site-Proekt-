@@ -23,3 +23,13 @@
 Создание услуги: `{"name":"Свадебная программа","shortDescription":"Сценарий и ведущие","priceFrom":120000,"category":"wedding","isActive":true,"displayOrder":1}`.
 
 Заявка: `{"clientName":"Анна","phone":"+7 999 123-45-67","email":"anna@example.com","eventType":"wedding","eventDate":"2027-06-20","guestCount":50,"comment":"Семейный праздник"}`.
+
+## Sprint 2: authentication and ownership
+
+- POST /api/auth/register: { email, password (12–128 chars), displayName }; returns { accessToken, expiresAtUtc, displayName, role }. Public registration always assigns Client; duplicate email returns 409.
+- POST /api/auth/login: { email, password }; same response. Invalid credentials: 401. Shared registration/login limit: 5 requests/minute/IP; rejection: 429.
+- GET /api/auth/session: bearer JWT required; returns { displayName, role }; active account and current role verified against database.
+- GET /api/applications/mine: bearer JWT required; only applications owned by JWT subject. Never matches ownership using submitted email.
+- POST /api/applications: remains anonymous; valid bearer JWT links the application to its subject.
+- Administrative endpoints require Admin; unauthenticated: 401, Client: 403.
+- In Production, /api/auth over HTTP returns 503; HTTPS must terminate at a trusted loopback proxy.

@@ -13,6 +13,8 @@ export async function apiRequest<T>(path: string, options?: RequestInit): Promis
   options?.signal?.addEventListener('abort', abortRequest, { once: true })
   try {
     const headers = new Headers(options?.headers)
+    const token = sessionStorage.getItem('dateandtime.session')
+    if (token) headers.set('Authorization', `Bearer ${token}`)
     if (!headers.has('Accept')) headers.set('Accept', 'application/json')
     if (options?.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
     const response = await fetch(`${API_URL}${path}`, { ...options, headers, signal: controller.signal })

@@ -7,12 +7,12 @@
 | US-06 | Регистрация Client, нормализация email, уникальный индекс, PBKDF2, пароль от 12 символов, общая ошибка входа, rate limit | API integration tests проходят |
 | US-07 | /account, проверка сессии, GET /api/applications/mine, UserId у новых авторизованных заявок | Изоляция двух аккаунтов проверена API-тестом; анонимные заявки сохранены |
 | US-08 | Проверка сессии перед показом админки, перенаправление Client, серверные Admin policies | Отказы 401/403 проверены API-тестами |
-| QA-01 | Unit и HTTP integration tests через WebApplicationFactory | 6 тестов проходят; HTTP-тесты используют InMemory, не MySQL |
-| QA-02 | tests/e2e/client.spec.ts | Сценарий написан, фактический прогон ожидает Docker-стенд |
-| QA-03 | tests/load/public-api.js: услуги и создание заявки | p95 < 1000 мс, ошибки < 1%; результат нагрузки ещё не получен |
-| SRE-01 | Метрики HTTP, MySQL exporter, Prometheus, Grafana dashboard, health-check БД, JSON logs | Конфигурация подготовлена; сбор метрик на живом стенде не подтверждён |
-| DX-01 | Compose: frontend/API/MySQL/мониторинг; миграция и seed | Сборки проходят; применение миграции к MySQL ещё не проверено |
-| SEC-01 | PR workflow: CodeQL, npm/NuGet audit, Gitleaks, Trivy обоих образов, passive ZAP | Workflow подготовлен; зелёный запуск GitHub Actions ещё не получен |
+| QA-01 | Unit и HTTP integration tests через WebApplicationFactory | 19 тестов проходят; HTTP-тесты используют InMemory, не MySQL |
+| QA-02 | tests/e2e/client.spec.ts | Пройдены 4 E2E-теста на настоящем API/MySQL, включая регистрацию, заявки, доступы, согласия и cookies |
+| QA-03 | tests/load/public-api.js: услуги и создание заявки | Пороги p95 < 1000 мс и ошибки < 1% выполнены в CI; отчёт сохраняется как load-results.txt |
+| SRE-01 | Метрики HTTP, MySQL exporter, Prometheus, Grafana dashboard, health-check БД, JSON logs | Проверены оба scrape-target, mysql_up, подключение Grafana и данные всех 8 панелей; production-установка мониторинга отдельно не выполнена |
+| DX-01 | Compose: frontend/API/MySQL/мониторинг; миграция и seed | Compose, миграции, seed и создание заявки проверены на настоящем MySQL в CI; production-деплой успешно выполняется |
+| SEC-01 | PR workflow: CodeQL, npm/NuGet audit, Gitleaks, Trivy обоих образов, passive ZAP | CodeQL, audits, Gitleaks, Trivy и passive ZAP проходят в GitHub Actions; у ZAP остаются предупреждения |
 | SEC-02 | nginx.https.conf: TLS, redirect, HSTS/CSP/headers; запрет auth по HTTP в production | Внешний блокер: домен/DNS/сертификат и доступ к серверу |
 
 ## Локальный запуск
@@ -62,6 +62,8 @@ Workflow `.github/workflows/quality.yml` поднимает отдельный �
 
 Обновлены Vite, React Router, MySqlConnector; закреплён исправленный minimatch для typescript-eslint. После обновления `npm audit` сообщает 0 уязвимостей. NuGet-аудит также не обнаруживает уязвимых пакетов. Для frontend после обновления нужен Node.js 22.12+ или 24 (Docker/CI используют 24).
 
-## Ограничения проверки в текущей среде
+## Подтверждённые проверки и оставшиеся ограничения
 
-Docker CLI установлен, но Docker Engine недоступен. Поэтому E2E, k6, DAST, сборка контейнеров, применение MySQL-миграции и живой мониторинг не выдаются за пройденные проверки. `docker compose config --quiet` проверен отдельно. Репозиторий не отправлялся на сервер и production-конфигурация не менялась.
+Проверки Docker/E2E/k6/DAST/мониторинга выполнены в GitHub Actions; локальный Docker для этого не требуется. Рабочий сайт обновлён через production-deploy. Реальные HTTP-проверки подтвердили health и публичные списки, а также 401 у закрытых API. HTTPS и production-регистрация остаются заблокированы до настройки сертификата. Grafana/Prometheus на VPS отдельно не устанавливались.
+
+Статусы пяти задач со скриншота и доказательства: [task-status.md](task-status.md).

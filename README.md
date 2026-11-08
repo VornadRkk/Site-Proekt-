@@ -109,7 +109,7 @@ dotnet build DateAndTime.sln --configuration Release
 dotnet test DateAndTime.sln --configuration Release
 ```
 
-Административную панель, JWT и защищённые CRUD endpoint следует добавлять после согласования ролей и сценария создания первого администратора.
+Реализованы Client/Admin JWT, регистрация и личный кабинет с собственными заявками, защищённые административные CRUD endpoint. Для production-входа необходим HTTPS.
 
 ## Развёртывание на сервере
 

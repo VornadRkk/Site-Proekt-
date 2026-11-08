@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DateAndTime.Api.Contracts.Applications;
 using DateAndTime.Api.Data;
 using DateAndTime.Api.Domain;
@@ -30,6 +31,7 @@ public sealed class ApplicationsController(AppDbContext dbContext) : ControllerB
         var application = new ApplicationRequest
         {
             Id = Guid.NewGuid(),
+            UserId = Guid.TryParse(User?.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) ? userId : null,
             ClientName = request.ClientName.Trim(),
             Phone = request.Phone.Trim(),
             Email = request.Email.Trim().ToLowerInvariant(),
@@ -50,6 +52,12 @@ public sealed class ApplicationsController(AppDbContext dbContext) : ControllerB
             application.CreatedAtUtc);
 
         return StatusCode(StatusCodes.Status201Created, response);
+    }
+
+    [HttpGet("mine"), Authorize]
+    public async Task<IActionResult> Mine(CancellationToken cancellationToken) {
+        if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id)) return Unauthorized();
+        return Ok(await dbContext.Applications.AsNoTracking().Where(x => x.UserId == id).OrderByDescending(x => x.CreatedAtUtc).ToListAsync(cancellationToken));
     }
 
     [HttpGet, Authorize(Roles = "Admin")]

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
@@ -11,9 +11,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
+using Prometheus;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
+builder.Logging.ClearProviders();
+builder.Logging.AddJsonConsole();
 builder.Services
     .AddControllers()
     .AddJsonOptions(options =>
@@ -27,6 +31,11 @@ if (Encoding.UTF8.GetByteCount(jwtKey) < 32) throw new InvalidOperationException
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.Events = new JwtBearerEvents { OnTokenValidated = async context => {
+            var idText = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var db = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+            if (!Guid.TryParse(idText, out var id) || !await db.Users.AnyAsync(x => x.Id == id && x.IsActive && x.Role == Enum.Parse<DateAndTime.Api.Domain.UserRole>(context.Principal!.FindFirst(System.Security.Claims.ClaimTypes.Role)!.Value))) context.Fail("Invalid session");
+        }};
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -102,12 +111,22 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("mysql");
 
 var app = builder.Build();
 
 app.UseForwardedHeaders();
+app.UseHttpMetrics();
 app.UseExceptionHandler();
+app.Use(async (context, next) => {
+    if (!app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("Testing") && context.Request.Path.StartsWithSegments("/api/auth") && !context.Request.IsHttps) {
+        context.Response.StatusCode = 503;
+        await context.Response.WriteAsJsonAsync(new { message = "Authentication requires HTTPS." });
+        return;
+    }
+    await next();
+});
+app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -117,9 +136,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("Frontend");
 app.UseRateLimiter();
 app.MapControllers();
+app.MapMetrics();
 app.MapHealthChecks("/health");
 
 if (!app.Environment.IsEnvironment("Testing"))

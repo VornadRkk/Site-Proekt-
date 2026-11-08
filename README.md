@@ -14,7 +14,7 @@ MVP сайта творческой команды **Date and Time**, котор
 
 ## Запуск
 
-Нужен Node.js 20 или новее.
+Нужен Node.js 22.12+ или 24.
 
 ```bash
 npm install
@@ -118,3 +118,7 @@ dotnet test DateAndTime.sln --configuration Release
 После push в `main` GitHub Actions собирает и проверяет проект, загружает релиз на сервер и переключает сайт на новую версию. При неуспешной проверке API возвращается предыдущая версия кода.
 
 Настройка nginx, MySQL, systemd и автоматического обновления из ветки `main` описана в [deploy/README.md](deploy/README.md).
+
+## Спринт 2
+
+Регистрация и кабинет доступны по `/account`; `/admin` проверяет серверную сессию и роль. Актуальный запуск полного стенда, новые API и честный статус критериев: [docs/sprint-2-status.md](docs/sprint-2-status.md). Этот раздел заменяет прежнее указание о том, что JWT/админку ещё предстоит добавить. Для Compose обязательно задайте JWT_KEY, ADMIN_PASSWORD и GRAFANA_PASSWORD в `.env`.

@@ -1,0 +1,81 @@
+name: Sprint quality and security
+on: [pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: npm ci && npm run lint && npm run build
+      - run: dotnet test DateAndTime.sln -c Release
+      - run: npm audit --audit-level=high
+      - run: dotnet list DateAndTime.sln package --vulnerable --include-transitive --format json > dependency-report.json
+      - run: node -e "const r=require('./dependency-report.json');if(r.projects?.some(p=>p.frameworks?.some(f=>f.transitivePackages?.length||f.topLevelPackages?.length)))process.exit(1)"
+      - name: Local test environment
+        run: |
+          printf 'JWT_KEY=%s\nADMIN_PASSWORD=%s\nGRAFANA_PASSWORD=%s\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 24)" "$(openssl rand -hex 24)" > .env
+          docker compose up --build -d --wait
+          for i in $(seq 1 60); do curl -fsS http://localhost:5080/health && break; sleep 2; done
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: k6
+        run: docker run --rm --network host -v "$PWD/tests/load:/scripts:ro" grafana/k6:0.57.0 run /scripts/public-api.js | tee load-results.txt
+      - name: Passive DAST
+        run: |
+          mkdir -p zap-results
+          chmod 777 zap-results
+          docker run --rm --network host -v "$PWD/zap-results:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://localhost:8080 -r report.html -I
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-results
+          path: |
+            playwright-report
+            load-results.txt
+            dependency-report.json
+            zap-results
+      - if: always()
+        run: docker compose down -v
+  sast:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript,csharp
+          build-mode: autobuild
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+  secrets:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  container:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        dockerfile: [Dockerfile, backend/DateAndTime.Api/Dockerfile]
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f ${{ matrix.dockerfile }} -t dateandtime:scan .
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: dateandtime:scan
+          exit-code: '1'
+          severity: HIGH,CRITICAL

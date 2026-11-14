@@ -18,3 +18,7 @@ TestResults/
 playwright-report/
 test-results/
 .npm-cache/
+
+# Local reports and artifact preparation
+/output/
+/tmp/

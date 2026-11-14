@@ -1,0 +1,19 @@
+﻿name: Verify existing deployment host key
+on:
+  push:
+    branches: [ops/server-host-verify]
+permissions:
+  contents: read
+jobs:
+  fingerprint:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Show public fingerprint of already trusted deployment host
+        env:
+          VERIFIED_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s\n' "$VERIFIED_KNOWN_HOSTS" > "$RUNNER_TEMP/deployment_known_hosts"
+          ssh-keygen -lf "$RUNNER_TEMP/deployment_known_hosts"
+          rm -f "$RUNNER_TEMP/deployment_known_hosts"

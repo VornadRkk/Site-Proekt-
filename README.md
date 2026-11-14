@@ -122,3 +122,7 @@ dotnet test DateAndTime.sln --configuration Release
 ## Спринт 2
 
 Регистрация и кабинет доступны по `/account`; `/admin` проверяет серверную сессию и роль. Актуальный запуск полного стенда, новые API и честный статус критериев: [docs/sprint-2-status.md](docs/sprint-2-status.md). Этот раздел заменяет прежнее указание о том, что JWT/админку ещё предстоит добавить. Для Compose обязательно задайте JWT_KEY, ADMIN_PASSWORD и GRAFANA_PASSWORD в `.env`.
+
+## Вход администратора
+
+Для работы с админкой сервера из Windows запустите `Open-Admin.cmd`. Инструкция и описание проверок: [docs/admin-access.md](docs/admin-access.md). Пароли не находятся в репозитории; локальные отчёты и доступы в `output/` исключены из Git.

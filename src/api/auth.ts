@@ -1,5 +1,5 @@
 import { apiRequest } from './client'
-export const authAllowed = window.location.protocol === 'https:' || ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+export const authAllowed = import.meta.env.VITE_ALLOW_HTTP_AUTH === 'true' || window.location.protocol === 'https:' || ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
 export const tokenKey = 'dateandtime.session'
 export type Session = { displayName: string; role: string }
 export const session = () => apiRequest<Session>('/api/auth/session')

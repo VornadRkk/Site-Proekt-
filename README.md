@@ -109,7 +109,7 @@ dotnet build DateAndTime.sln --configuration Release
 dotnet test DateAndTime.sln --configuration Release
 ```
 
-Реализованы Client/Admin JWT, регистрация и личный кабинет с собственными заявками, защищённые административные CRUD endpoint. Для production-входа необходим HTTPS.
+Реализованы Client/Admin JWT, регистрация и личный кабинет с собственными заявками, защищённые административные CRUD endpoint. На текущем HTTP-сервере вход включён явно: `VITE_ALLOW_HTTP_AUTH=true` и `Authentication:AllowHttp=true` в production-конфигурации. Без HTTPS пароли и токены передаются без шифрования.
 
 ## Развёртывание на сервере
 

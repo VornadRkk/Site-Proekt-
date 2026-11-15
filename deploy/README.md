@@ -30,6 +30,8 @@ The nginx template initially uses HTTP. When a domain is available, point its DN
 
 ## GitHub Actions
 
+The current deployment intentionally allows sign-in over HTTP, as requested by the site owner. `.env.production` sets `VITE_ALLOW_HTTP_AUTH=true`, and `appsettings.Production.json` sets `Authentication:AllowHttp=true`. `/account` is the client account and `/admin` is administrator sign-in; authentication, roles, and rate limits remain enforced. Passwords and tokens are unencrypted in transit over HTTP. When switching to HTTPS, remove the frontend flag and set `Authentication__AllowHttp=false` on the server. The SSH tunnel remains an optional way to access administration.
+
 The workflow runs after a push to `main` and through **Actions → Deploy production → Run workflow**. It builds with `VITE_USE_MOCKS=false` and an empty `VITE_API_URL`, so the browser calls the same site's API. Build and test checks run before an upload. Deployments are serialized.
 
 In repository **Settings → Secrets and variables → Actions**, add these repository secrets:

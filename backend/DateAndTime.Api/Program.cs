@@ -119,7 +119,7 @@ app.UseForwardedHeaders();
 app.UseHttpMetrics();
 app.UseExceptionHandler();
 app.Use(async (context, next) => {
-    if (!app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("Testing") && context.Request.Path.StartsWithSegments("/api/auth") && !context.Request.IsHttps) {
+    if (!app.Configuration.GetValue<bool>("Authentication:AllowHttp") && !app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("Testing") && context.Request.Path.StartsWithSegments("/api/auth") && !context.Request.IsHttps) {
         context.Response.StatusCode = 503;
         await context.Response.WriteAsJsonAsync(new { message = "Authentication requires HTTPS." });
         return;
